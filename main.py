@@ -16,7 +16,7 @@ ACCOUNT_SID = os.environ.get("ACCOUNT_SID")
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
 SENDING_NUMBER = os.environ.get("SENDING_NUMBER")
 RECEIVING_NUMBERS_STR = os.environ.get("RECEIVING_NUMBERS") # type == string
-RECEIVING_NUMBERS_DICT = ast.literal_eval(RECEIVING_NUMBERS_STR) # type == dictionary {"name" : "adam", "phone number": "+19876543210", etc...}
+RECEIVING_NUMBERS_DICT = ast.literal_eval(RECEIVING_NUMBERS_STR) # type == dictionary {"name" : "phone number", "adam": "+19876543210", etc...}
 
 # Load dataset and filter out rows without media link
 data = pd.read_csv("animal-fun-facts-dataset.csv").dropna(subset=['media_link'])
