@@ -17,9 +17,9 @@ AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
 SENDING_NUMBER = os.environ.get("SENDING_NUMBER")
 RECEIVING_NUMBERS_STR = os.environ.get("RECEIVING_NUMBERS") # type == string
 RECEIVING_NUMBERS_DICT = ast.literal_eval(RECEIVING_NUMBERS_STR) # type == dictionary {"name" : "phone number", "adam": "+19876543210", etc...}
-
+FILENAME = os.environ.get("FILENAME")
 # Load dataset and filter out rows without media link
-data = pd.read_csv("animal-fun-facts-dataset.csv").dropna(subset=['media_link'])
+data = pd.read_csv(FILENAME).dropna(subset=['media_link'])
 # column names are: animal_name, source, text, media_link, wikipedia_link
 
 # Load used indices from log file, or initialize as empty set
