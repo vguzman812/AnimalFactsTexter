@@ -18,32 +18,42 @@ SENDING_NUMBER = os.environ.get("SENDING_NUMBER")
 RECEIVING_NUMBERS_STR = os.environ.get("RECEIVING_NUMBERS") # type == string
 RECEIVING_NUMBERS_DICT = ast.literal_eval(RECEIVING_NUMBERS_STR) # type == dictionary {"name" : "phone number", "adam": "+19876543210", etc...}
 FILENAME = os.environ.get("FILENAME")
+
+TEST_MODE = True
+
+if TEST_MODE:
+    RECEIVING_NUMBERS_STR = os.environ.get("TEST_NUMBER") # type == string
+    RECEIVING_NUMBERS_DICT = ast.literal_eval(RECEIVING_NUMBERS_STR)  # type == dictionary {"name" : "phone number", "adam": "+19876543210", etc...}
+
 # Load dataset and filter out rows without media link
 data = pd.read_csv(FILENAME).dropna(subset=['media_link'])
 # column names are: animal_name, source, text, media_link, wikipedia_link
 
-# Load used indices from log file, or initialize as empty set
-try:
-    with open("used_indices.log", "r") as file:
-        used_indices = set(map(int, file.read().split()))
-except FileNotFoundError:
-    used_indices = set()
+if TEST_MODE:
+    # Load used indices from log file, or initialize as empty set
+    try:
+        with open("used_indices.log", "r") as file:
+            used_indices = set(map(int, file.read().split()))
+    except FileNotFoundError:
+        used_indices = set()
 
-# Select an unused random index
-while True:
+    # Select an unused random index
+    while True:
+        rand_index = random.randint(0, len(data) - 1)
+        if rand_index not in used_indices:
+            used_indices.add(rand_index)
+            # Compare number of rows in the CSV to the number of indices in the used indices log
+            remaining_rows = len(data) - len(used_indices)
+            if remaining_rows < 30:
+                print(f"WARNING: THERE ARE ONLY {remaining_rows} UNUSED ROWS LEFT.")
+            break
+
+    # Write the used index to the log file
+    with open("used_indices.log", "w") as file:
+        for index in used_indices:
+            file.write(f"{index}\n")
+else:
     rand_index = random.randint(0, len(data) - 1)
-    if rand_index not in used_indices:
-        used_indices.add(rand_index)
-        # Compare number of rows in the CSV to the number of indices in the used indices log
-        remaining_rows = len(data) - len(used_indices)
-        if remaining_rows < 30:
-            print(f"WARNING: THERE ARE ONLY {remaining_rows} UNUSED ROWS LEFT.")
-        break
-
-# Write the used index to the log file
-with open("used_indices.log", "w") as file:
-    for index in used_indices:
-        file.write(f"{index}\n")
 
 
 # Select the row with the random unused index
