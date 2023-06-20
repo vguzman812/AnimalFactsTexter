@@ -18,6 +18,7 @@ SENDING_NUMBER = os.environ.get("SENDING_NUMBER")
 RECEIVING_NUMBERS_STR = os.environ.get("RECEIVING_NUMBERS") # type == string
 RECEIVING_NUMBERS_DICT = ast.literal_eval(RECEIVING_NUMBERS_STR) # type == dictionary {"name" : "phone number", "adam": "+19876543210", etc...}
 FILENAME = os.environ.get("FILENAME")
+WEBHOOK_ENDPOINT = os.environ.get("WEBHOOK_ENDPOINT")
 
 TEST_MODE = True
 
@@ -29,7 +30,7 @@ if TEST_MODE:
 data = pd.read_csv(FILENAME).dropna(subset=['media_link'])
 # column names are: animal_name, source, text, media_link, wikipedia_link
 
-if TEST_MODE:
+if not TEST_MODE:
     # Load used indices from log file, or initialize as empty set
     try:
         with open("used_indices.log", "r") as file:
@@ -87,12 +88,13 @@ if pd.notna(selected_row.wikipedia_link):
 
 # use Twilio API to compose and send text message
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
+
 for receiver in RECEIVING_NUMBERS_DICT:
     first_name = receiver.split()[0]
     receiving_number = RECEIVING_NUMBERS_DICT[receiver]
     message = client.messages.create(
-        body=f"Hello, {first_name}.☀️\n" \
-             "Another beautiful day is here! That means it's time for another animal 🐙 fact!\n " \
+        body=f"Hello, {first_name}.\n" \
+             "Another beautiful day is here! That means it's time for another animal fact!\n " \
              f"\nAnimal of the day: {animal_name}\n" \
              f"\n{animal_fact}\n" \
              f"\n{wikipedia_link}\n" \
@@ -100,7 +102,9 @@ for receiver in RECEIVING_NUMBERS_DICT:
              "\nRemember, you are beautiful, strong, and loved. Now go make this day good!",
         from_=SENDING_NUMBER,
         to=receiving_number,
+        status_callback=WEBHOOK_ENDPOINT,
     )
+
     # print key response phrases
     print(f"\nattempt message send to: {receiver}" \
         f"\nstatus: {message.status}," \
@@ -118,10 +122,11 @@ print(
     f"wikipedia: {wikipedia_link}\n" \
     f"media: {media_link}\n"
 )
-print(f"Hello, name.☀️\n" \
-        "Another beautiful day is here! That means it's time for another animal 🐙 fact!\n " \
+print(f"Hello, name..️\n" \
+        "Another beautiful day is here! That means it's time for another animal fact!\n " \
          f"\nAnimal of the day: {animal_name}\n" \
          f"\n{animal_fact}\n" \
          f"\n{wikipedia_link}\n" \
          f"\n{media_message}" \
          "\nRemember, you are beautiful, strong, and loved. Now go make this day good!")
+
