@@ -73,12 +73,15 @@ if pd.notna(selected_row.media_link):
     media_link = selected_row.media_link
     # parse media link for use in cuttly API
     short_media = urllib.parse.quote(f'{media_link}')
+
     # request from cuttly API
     r = requests.get('http://cutt.ly/api/api.php?key={}&short={}'.format(CUTTLY_API_KEY, short_media, ))
-    short_link = r.json()['url']['shortLink']
-    # put short url in media_message
-    media_message = "Media Link: \n" \
-                    f"{short_link}\n"
+    try:
+        short_link = r.json()['url']['shortLink']
+        # put short url in media_message
+        media_message = f"Media Link: \n{short_link}\n"
+    except KeyError:
+        media_message = f"Media Link: \n{media_link}\n"
 
 # if wikipedia_link not NaN add "wikipedia.org" on to the front
 if pd.notna(selected_row.wikipedia_link):
@@ -99,7 +102,8 @@ for receiver in RECEIVING_NUMBERS_DICT:
              f"\n{animal_fact}\n" \
              f"\n{wikipedia_link}\n" \
              f"\n{media_message}" \
-             "\nRemember, you are beautiful, strong, and loved. Now go make this day good!",
+             "\nRemember, you are beautiful, strong, and loved. Now go make this day good!" \
+             "For more info, text HELP. To stop receiving these messages, text STOP.",
         from_=SENDING_NUMBER,
         to=receiving_number,
         status_callback=WEBHOOK_ENDPOINT,
